@@ -20,8 +20,37 @@ databits = 8
 stopbits = 1
 prioty = None
 
-test_record_file = 'ProductionPCBtest.csv'
-config_file = 'config'
+lock_test_record_file = 'Lock_ProductionPCBtest.csv'
+gw_test_record_file = 'GW_ProductionPCBtest.csv'
+config_file_lock = 'config_lock'
+config_file_gw = 'config_gw'
+
+config_file = ''
+test_record_file = ''
+id_key = ''
+dev_type = ''
+
+while True:
+    print('\n***********  TEST  START  ******************\n')
+    print('1.网关')
+    print('2.智能锁\n')
+    dev_type = input('请输入测试的设备类型：')
+    if dev_type == '1':
+        test_record_file = gw_test_record_file
+        id_key = 'GW-ID'
+        config_file = config_file_gw
+        break
+    elif dev_type == '2':
+        test_record_file = lock_test_record_file
+        id_key = 'DEV-ID'
+        config_file = config_file_lock
+        break
+    else:
+        os.system('cls')
+        print(Red('\n请输入正确的设备类型序号！'))
+        continue
+
+
 
 
 f_config = open(config_file, 'r')
@@ -58,8 +87,11 @@ while True:
                         write_data = input(data)
                         if write_data == '' or write_data == 'y' or write_data == 'Y':
                             write_data = 'y'
-                        else:
+                        elif write_data == 'n' or write_data == 'N':
                             write_data = 'n'
+                        else:
+                            print('\t请输入 Y/n ...\n')
+                            continue
                         write_data1 = write_data.encode('gbk')
                         sp.write(write_data1)
                     elif 'result' in data:
@@ -69,17 +101,29 @@ while True:
                         if error == 0:
                             r = Green('测试成功！')
                             pcb_pass += 1
+                        elif error == (1<<0):
+                            r = Red('语音测试失败！')
+                            pcb_fail += 1
+                        elif error == (1<<1):
+                            r = Red('LED灯测试失败！')
+                            pcb_fail += 1
                         elif error == (1<<2):
                             r = Red('Lora测试失败！')
                             pcb_fail += 1
                         elif error == (1<<3):
-                            r = Red('指纹测试失败！')
+                            if dev_type == '1':
+                                r = Red('Flash测试失败！')
+                            if dev_type == '2':
+                                r = Red('指纹测试失败！')                                
                             pcb_fail += 1
                         elif error == (1<<4):
                             r = Red('按键测试失败！')
                             pcb_fail += 1
                         elif error == (1<<5):
-                            r = Red('语音测试失败！')
+                            if dev_type == '1':
+                                r = Red('GM3测试失败！')
+                            if dev_type == '2':
+                                r = Red('语音测试失败！')
                             pcb_fail += 1
                         elif error == (1<<6):
                             r = Red('电机测试失败！')
@@ -103,12 +147,11 @@ while True:
                         break
                     else:
                         print(data)
-                        if 'DEV-ID' in data:
+                        if id_key in data:
                             id = data[11:-2]
                             
                 else:
                     print('串口通信超时 ...')
-                    exit()
                     break
             sp.close()
             sp = serial.Serial(port=port, baudrate=baudrate)

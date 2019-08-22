@@ -14,6 +14,12 @@ lock_id_addr = 0x0801FE00
 lock_id = '010000{:08X}'
 
 
+bin_path = '../../'
+
+for root, dirs, files in os.walk(bin_path):
+    print(files)
+exit()
+
 
 dev_type = 0
 mcu = ''
