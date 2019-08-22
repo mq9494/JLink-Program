@@ -33,7 +33,6 @@ pcb_pass = int(config[1])
 pcb_fail = int(config[2])
 
 t = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-logName = 'GW_LOG_{}.txt'.format(t)
 
 sp = serial.Serial(port=port, baudrate=baudrate)
 
