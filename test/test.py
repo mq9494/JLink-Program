@@ -63,7 +63,12 @@ pcb_fail = int(config[2])
 
 t = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 
-sp = serial.Serial(port=port, baudrate=baudrate)
+while True:
+    try:
+        sp = serial.Serial(port=port, baudrate=baudrate)
+        break
+    except:
+        input('串口可能被占用，无法打开！')
 
 os.system('cls')
 while True:
@@ -76,14 +81,15 @@ while True:
         data = line.decode('gbk')
         if 'Test Start' in data:
             sp.close()
-            sp = serial.Serial(port=port, baudrate=baudrate, timeout=21)
+            sp = serial.Serial(port=port, baudrate=baudrate, timeout=120)
             id = ''
             pcb_sum += 1
             while True:
                 line = sp.readline()
+                # print(line)
                 data = line.decode('gbk')
                 if data != '':
-                    if 'y/n' in data or 'Y/n' in data:
+                    if 'y/n' in data or 'Y/n' in data or 'Y\\n' in data:
                         write_data = input(data)
                         if write_data == '' or write_data == 'y' or write_data == 'Y':
                             write_data = 'y'
@@ -131,7 +137,7 @@ while True:
                         elif error == (1<<7):
                             r = Red('背光测试失败！')
                             pcb_fail += 1
-                        print(r, '测试用时：{}'.format(result['time']))
+                        print(r, '测试用时：{} 秒'.format(result['time']))
                         print()
                         t = datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S')
                         record = t + ',' + id + ',' + '{} of {}'.format(pcb_pass, pcb_sum) + '\n'

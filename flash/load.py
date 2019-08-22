@@ -14,11 +14,23 @@ lock_id_addr = 0x0801FE00
 lock_id = '010000{:08X}'
 
 
-bin_path = '../../'
+bin_path = '../../bin/'
+file_bin_lock = ''
+file_bin_gw = ''
+
+record_file_lock = 'lock_qr_code_write.csv'
+record_file_gw = 'gw_qr_code_write.csv'
+record_file = ''
+
 
 for root, dirs, files in os.walk(bin_path):
-    print(files)
-exit()
+    # print(files)
+    for file_name in files:
+        if 'lock' in file_name:
+            file_bin_lock = file_name
+        if 'gateway' in file_name:
+            file_bin_gw = file_name
+
 
 
 dev_type = 0
@@ -33,22 +45,24 @@ program_addr = 0x08000000
 os.system('cls')
 while True:
     print('\n***********  TEST  START  ******************\n')
-    print('1.网关')
-    print('2.智能锁\n')
+    print('1.网关\t\t{}'.format(file_bin_gw))
+    print('2.智能锁\t\t{}\n'.format(file_bin_lock))
     dev_type = input('请输入测试的设备类型：')
     if dev_type == '1':
         mcu = gw_mcu
         id_addr = gw_id_addr
         id_value = gw_id
         id_key = 'GW-ID'
-        file_bin = 'gw_v3.1_boot_app.bin'
+        file_bin = bin_path + file_bin_gw
+        record_file = record_file_gw
         break
     elif dev_type == '2':
         mcu = lock_mcu
         id_addr = lock_id_addr
         id_value = lock_id
         id_key = 'DEV-ID'
-        file_bin = 'lock_v3.1_boot_app.bin'
+        file_bin = bin_path + file_bin_lock
+        record_file = record_file_lock
         break
     else:
         os.system('cls')
@@ -80,7 +94,7 @@ while True:
                 continue
         except pylink.JLinkException:
             print('连接MCU ...')
-            continue
+            break
         qr_code = input('请扫描二维码：\n\t')
         try:
             # 用于二维码
@@ -94,16 +108,21 @@ while True:
         except:
             input(Red('请确认二维码是 {} 的二维码！'.format(DEV[dev_type-1])))
             continue
-        jl.erase()
-        jl.flash_file(file_bin, program_addr)
-        jl.flash_write32(id_addr, [qr_id])
-        id_read = jl.memory_read32(id_addr, 1)[0]
+        try:
+            jl.erase()
+            jl.flash_file(file_bin, program_addr)
+            jl.flash_write32(id_addr, [qr_id])
+            id_read = jl.memory_read32(id_addr, 1)[0]
+        except:
+            input('请确认 JLink 连接正确 。。。')
+            continue
         t = datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S')
         record = t + ',' + DEV[dev_type-1] + ',' + id_value.format(qr_id) + ',' + str(id_read) +'\n'
-        f = open('qr_code_write.csv', 'a+')
+        f = open(record_file, 'a+')
         f.write(record)
         f.close()
         if id_read == qr_id:
             result = input(Green('二维码写入正确！'))
         else:
             result = input(Red('二维码写入错误！'))
+    continue
