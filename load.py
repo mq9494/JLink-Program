@@ -76,8 +76,13 @@ while True:
             continue
         qr_code = input('请扫描二维码：\n\t')
         try:
-            qr_code = qr_code.split('json=')[1]
-            qr_id = eval(qr_code)[id_key][-8:]
+            # 用于二维码
+            # qr_code = qr_code.split('json=')[1]     
+            # qr_id = eval(qr_code)[id_key][-8:]
+
+            # 用于条形码
+            qr_id = qr_code[-8:]
+            
             qr_id = int(qr_id, 16)
         except:
             input(Red('请确认二维码是 {} 的二维码！'.format(DEV[dev_type-1])))
