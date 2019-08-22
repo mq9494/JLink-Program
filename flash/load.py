@@ -14,6 +14,7 @@ lock_id_addr = 0x0801FE00
 lock_id = '010000{:08X}'
 
 
+
 dev_type = 0
 mcu = ''
 id_addr = 0
@@ -77,11 +78,11 @@ while True:
         qr_code = input('请扫描二维码：\n\t')
         try:
             # 用于二维码
-            # qr_code = qr_code.split('json=')[1]     
-            # qr_id = eval(qr_code)[id_key][-8:]
+            qr_code = qr_code.split('json=')[1]     
+            qr_id = eval(qr_code)[id_key][-8:]
 
             # 用于条形码
-            qr_id = qr_code[-8:]
+            # qr_id = qr_code[-8:]
             
             qr_id = int(qr_id, 16)
         except:

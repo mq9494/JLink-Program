@@ -41,6 +41,8 @@ while True:
     try:
         print('请接好接插件，再上电...')
         line = sp.readline()
+        line = sp.readline()
+        # print(line)
         os.system('cls')
         data = line.decode('gbk')
         if 'Test Start' in data:
