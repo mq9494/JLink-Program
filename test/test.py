@@ -3,7 +3,6 @@ import time
 import datetime
 import serial.tools.list_ports
 import os, sys
-from color import *
 import msvcrt
 
 def myInput(strP, timeout = 5):
@@ -18,7 +17,7 @@ def myInput(strP, timeout = 5):
     if len(input) > 0:
         return input
     else:
-        return b''
+        return b'n'
 
 
 port_count = 0
@@ -38,6 +37,8 @@ prioty = None
 
 lock_test_record_file = 'Lock_ProductionPCBtest.csv'
 gw_test_record_file = 'GW_ProductionPCBtest.csv'
+test_log_lock = 'log_lock.txt'
+test_log_gw = 'log_gw.txt'
 config_file_lock = 'config_lock'
 config_file_gw = 'config_gw'
 
@@ -45,6 +46,7 @@ config_file = ''
 test_record_file = ''
 id_key = ''
 dev_type = ''
+test_log = ''
 
 while True:
     print('\n***********  TEST  START  ******************\n')
@@ -55,15 +57,17 @@ while True:
         test_record_file = gw_test_record_file
         id_key = 'GW-ID'
         config_file = config_file_gw
+        test_log = test_log_gw
         break
     elif dev_type == '2':
         test_record_file = lock_test_record_file
         id_key = 'DEV-ID'
         config_file = config_file_lock
+        test_log = test_log_lock
         break
     else:
         os.system('cls')
-        print(Red('\n请输入正确的设备类型序号！'))
+        print(('\n请输入正确的设备类型序号！'))
         continue
 
 
@@ -95,6 +99,9 @@ while True:
         os.system('cls')
         try:
             data = line.decode('gbk')
+            f_log = open(test_log, 'a+')
+            f_log.write(data)
+            f_log.close()
         except:
             continue
         if 'Test Start' in data:
@@ -107,63 +114,71 @@ while True:
                 # print(line)
                 try:
                     data = line.decode('gbk')
+                    f_log = open(test_log, 'a+')
+                    f_log.write(data)
+                    f_log.close()
                 except:
                     continue
                 # print(data)
                 if data != '':
                     if 'y/n' in data or 'Y/n' in data or 'Y\\n' in data:
-                        write_data = myInput(data, timeout=15).decode('gbk')
+                        write_data = myInput(data, timeout=8).decode('gbk')
                         # print(write_data)
-                        if write_data == '' or write_data == 'y' or write_data == 'Y' or write_data == '\r':
-                            write_data = 'y'
-                        elif write_data == 'n' or write_data == 'N':
-                            write_data = 'n'
-                        else:
-                            print('\t请输入 Y/n ...\n')
-                            continue
+                        while True:
+                            if write_data == '' or write_data == 'y' or write_data == 'Y' or write_data == '\r':
+                                write_data = 'y'
+                                break
+                            elif write_data == 'n' or write_data == 'N':
+                                write_data = 'n'
+                                break
+                            else:
+                                # print('\t请输入 Y/n ...\n')
+                                write_data = myInput('\t请输入 Y/n ...\n', timeout=8).decode('gbk')
+                                continue
                         write_data1 = write_data.encode('gbk')
                         sp.write(write_data1)
                     elif 'result' in data:
+                        r = ''
                         result = eval(data)
                         error = result['result']
                         print()
                         if error == 0:
-                            r = Green('测试成功！')
+                            r = ('测试成功！')
                             pcb_pass += 1
-                        elif error == (1<<0):
-                            r = Red('语音测试失败！')
+                        if error & (1<<0) == (1<<0):
+                            r += ('语音测试失败！')
                             pcb_fail += 1
-                        elif error == (1<<1):
-                            r = Red('LED灯测试失败！')
+                        if error & (1<<1) == (1<<1):
+                            r += ('LED灯测试失败！')
                             pcb_fail += 1
-                        elif error == (1<<2):
-                            r = Red('Lora测试失败！')
+                        if error & (1<<2) == (1<<2):
+                            r += ('Lora测试失败！')
                             pcb_fail += 1
-                        elif error == (1<<3):
+                        if error & (1<<3) == (1<<3):
                             if dev_type == '1':
-                                r = Red('Flash测试失败！')
+                                r += ('Flash测试失败！')
                             if dev_type == '2':
-                                r = Red('指纹测试失败！')                                
+                                r += ('指纹测试失败！')                                
                             pcb_fail += 1
-                        elif error == (1<<4):
-                            r = Red('按键测试失败！')
+                        if error & (1<<4) == (1<<4):
+                            r += ('按键测试失败！')
                             pcb_fail += 1
-                        elif error == (1<<5):
+                        if error & (1<<5) == (1<<5):
                             if dev_type == '1':
-                                r = Red('GM3测试失败！')
+                                r += ('GM3测试失败！')
                             if dev_type == '2':
-                                r = Red('语音测试失败！')
+                                r += ('语音测试失败！')
                             pcb_fail += 1
-                        elif error == (1<<6):
-                            r = Red('电机测试失败！')
+                        if error & (1<<6) == (1<<6):
+                            r += ('电机测试失败！')
                             pcb_fail += 1
-                        elif error == (1<<7):
-                            r = Red('背光测试失败！')
+                        if error & (1<<7) == (1<<7):
+                            r += ('背光测试失败！')
                             pcb_fail += 1
                         print(r, '测试用时：{} 秒'.format(result['time']))
                         print()
                         t = datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S')
-                        record = t + ',' + id + ',' + '{} of {}'.format(pcb_pass, pcb_sum) + '\n'
+                        record = t + ',' + id + ',' + r + ',' + '{}'.format(pcb_sum) + '\n'
                         config = '{},{},{}'.format(pcb_sum, pcb_pass, pcb_fail)
                         # print(record)
                         # print(config)
