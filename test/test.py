@@ -2,8 +2,24 @@ import serial
 import time
 import datetime
 import serial.tools.list_ports
-import os
+import os, sys
 from color import *
+import msvcrt
+
+def myInput(strP, timeout = 5):
+    print(strP)
+    start_time = time.time()
+    input = ''
+    while True:
+        if msvcrt.kbhit():
+            input = msvcrt.getche()
+        if len(input) != 0 or (time.time() - start_time) > timeout:
+            break
+    if len(input) > 0:
+        return input
+    else:
+        return b''
+
 
 port_count = 0
 port_list = list(serial.tools.list_ports.comports())
@@ -77,7 +93,10 @@ while True:
         line = sp.readline()
         # print(line)
         os.system('cls')
-        data = line.decode('gbk')
+        try:
+            data = line.decode('gbk')
+        except:
+            continue
         if 'Test Start' in data:
             sp.close()
             sp = serial.Serial(port=port, baudrate=baudrate, timeout=120)
@@ -86,11 +105,16 @@ while True:
             while True:
                 line = sp.readline()
                 # print(line)
-                data = line.decode('gbk')
+                try:
+                    data = line.decode('gbk')
+                except:
+                    continue
+                # print(data)
                 if data != '':
                     if 'y/n' in data or 'Y/n' in data or 'Y\\n' in data:
-                        write_data = input(data)
-                        if write_data == '' or write_data == 'y' or write_data == 'Y':
+                        write_data = myInput(data, timeout=15).decode('gbk')
+                        # print(write_data)
+                        if write_data == '' or write_data == 'y' or write_data == 'Y' or write_data == '\r':
                             write_data = 'y'
                         elif write_data == 'n' or write_data == 'N':
                             write_data = 'n'
