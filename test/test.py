@@ -122,7 +122,7 @@ while True:
                 # print(data)
                 if data != '':
                     if 'y/n' in data or 'Y/n' in data or 'Y\\n' in data:
-                        write_data = myInput(data, timeout=8).decode('gbk')
+                        write_data = myInput(data, timeout=9).decode('gbk')
                         # print(write_data)
                         while True:
                             if write_data == '' or write_data == 'y' or write_data == 'Y' or write_data == '\r':
@@ -133,7 +133,7 @@ while True:
                                 break
                             else:
                                 # print('\t请输入 Y/n ...\n')
-                                write_data = myInput('\t请输入 Y/n ...\n', timeout=8).decode('gbk')
+                                write_data = myInput('\t请输入 Y/n ...\n', timeout=9).decode('gbk')
                                 continue
                         write_data1 = write_data.encode('gbk')
                         sp.write(write_data1)
@@ -174,6 +174,9 @@ while True:
                             pcb_fail += 1
                         if error & (1<<7) == (1<<7):
                             r += ('背光测试失败！')
+                            pcb_fail += 1
+                        if error & (1<<8) == (1<<8):
+                            r += ('低功耗测试失败！')
                             pcb_fail += 1
                         print(r, '测试用时：{} 秒'.format(result['time']))
                         print()
