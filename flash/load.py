@@ -45,7 +45,7 @@ program_addr = 0x08000000
 os.system('cls')
 while True:
     print('\n***********  TEST  START  ******************\n')
-    print('1.网关\t\t{}'.format(file_bin_gw))
+    print('1.网关\t\t\t{}'.format(file_bin_gw))
     print('2.智能锁\t\t{}\n'.format(file_bin_lock))
     dev_type = input('请输入测试的设备类型：')
     if dev_type == '1':
@@ -125,4 +125,4 @@ while True:
             result = input(Green('二维码写入正确！'))
         else:
             result = input(Red('二维码写入错误！'))
-    continue
+    

@@ -75,7 +75,6 @@ while True:
     try:
         print('请接好接插件，再上电...')
         line = sp.readline()
-        line = sp.readline()
         # print(line)
         os.system('cls')
         data = line.decode('gbk')
@@ -162,8 +161,9 @@ while True:
             sp.close()
             sp = serial.Serial(port=port, baudrate=baudrate)
         else:
-            sp.close()
-            sp = serial.Serial(port=port, baudrate=baudrate)
+            pass
+            # sp.close()
+            # sp = serial.Serial(port=port, baudrate=baudrate)
     except KeyboardInterrupt as e:
         print('退出测试')
         exit()
