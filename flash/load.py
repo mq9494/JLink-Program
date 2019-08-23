@@ -65,12 +65,17 @@ while True:
         record_file = record_file_lock
         break
     else:
-        os.system('cls')
+        # os.system('cls')
         print(Red('\n请输入正确的设备类型序号！'))
         continue
 
 dev_type = int(dev_type)
-jl = pylink.JLink()
+while True:
+    try:
+        jl = pylink.JLink()
+        break
+    except:
+        input('请确认 JLink 已连接 ...')
 
 
 while True:
