@@ -109,6 +109,7 @@ while True:
             sp = serial.Serial(port=port, baudrate=baudrate, timeout=120)
             id = ''
             pcb_sum += 1
+            key_num = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
             while True:
                 line = sp.readline()
                 # print(line)
@@ -119,6 +120,8 @@ while True:
                     f_log.close()
                 except:
                     continue
+                if 'Test Start' in data:
+                    key_num = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
                 # print(data)
                 if data != '':
                     if 'y/n' in data or 'Y/n' in data or 'Y\\n' in data:
@@ -193,7 +196,25 @@ while True:
                         f_config_w.close()
                         break
                     else:
-                        print(data)
+                        if '按键：' in data:
+                            # print(data)
+                            key = ''
+                            if data[-4] == '：':
+                                key = data[-3]
+                            else:
+                                key = data[-4:-2]
+                            # print(key)
+                            for i in range(len(key_num)):
+                                if key_num[i] == key:
+                                    key_num[i] = ' '
+                                    break
+                            key_str = ''
+                            for i in range(len(key_num)):
+                                key_str += '{}  '.format(key_num[i])
+                            print(key_str)
+                        else:
+                            print(data)
+
                         if id_key in data:
                             id = data[11:-2]
                             

@@ -13,9 +13,11 @@ gw_id = '000000{:08X}'
 lock_mcu = 'STM32L071RB'
 lock_id_addr = 0x0801FE00
 lock_id = '010000{:08X}'
+lock_time_addr = 0x0801FD02
+lock_time = [5]
 
 
-dev_type = 0
+dev_type = ''
 mcu = ''
 id_addr = 0
 id_value = ''
@@ -69,7 +71,7 @@ while True:
                 continue
         except pylink.JLinkException:
             print('连接MCU ...')
-            continue
+            break
         qr_code = input('请扫描二维码：\n\t')
         try:
             qr_code = qr_code.split('json=')[1]
@@ -77,8 +79,14 @@ while True:
         except:
             input(Red('请确认二维码是 {} 的二维码！'.format(DEV[dev_type-1])))
             continue
-        id_read = jl.memory_read32(id_addr, 1)[0]
-        id_read = id_value.format(id_read)
+        try:
+            id_read = jl.memory_read32(id_addr, 1)[0]
+            id_read = id_value.format(id_read)
+            if dev_type == 2:
+                jl.flash_write8(lock_time_addr, lock_time)
+        except:
+            input('请确认 JLink 连接正确 。。。')
+            continue
         t = datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S')
         record = t + ',' + DEV[dev_type-1] + ',' + qr_id + ',' + id_read +'\n'
         f = open('qr_code_cmp.csv', 'a+')
