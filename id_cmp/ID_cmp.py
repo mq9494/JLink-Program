@@ -86,7 +86,7 @@ while True:
                 jl.flash_write8(lock_time_addr, lock_time)
         except:
             input('请确认 JLink 连接正确 。。。')
-            continue
+            break
         t = datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S')
         record = t + ',' + DEV[dev_type-1] + ',' + qr_id + ',' + id_read +'\n'
         f = open('qr_code_cmp.csv', 'a+')
@@ -98,3 +98,4 @@ while True:
             print('\t设  备ID：{}'.format(Red(id_read)))
             print('\t二维码ID：{}'.format(Red(qr_id)))
             result = input(Red('二维码匹配错误！'))
+    continue
