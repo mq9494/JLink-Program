@@ -15,6 +15,8 @@ lock_id_addr = 0x0801FE00
 lock_id = '010000{:08X}'
 lock_time_addr = 0x0801FD02
 lock_time = [5]
+lock_test_addr = 0x0801FF00
+lock_test = [0xFF]
 
 
 dev_type = ''
@@ -84,6 +86,7 @@ while True:
             id_read = id_value.format(id_read)
             if dev_type == 2:
                 jl.flash_write8(lock_time_addr, lock_time)
+                # jl.flash_write8(lock_test_addr, lock_test)
         except:
             input('请确认 JLink 连接正确 。。。')
             break
