@@ -125,6 +125,7 @@ while True:
                 # print(data)
                 if data != '':
                     if 'y/n' in data or 'Y/n' in data or 'Y\\n' in data:
+                        print()
                         write_data = myInput(data, timeout=9).decode('gbk')
                         # print(write_data)
                         while True:
@@ -211,7 +212,7 @@ while True:
                             key_str = ''
                             for i in range(len(key_num)):
                                 key_str += '{}  '.format(key_num[i])
-                            print(key_str)
+                            print('\r', key_str, end='')
                         else:
                             print(data)
 
